@@ -1,0 +1,32 @@
+﻿# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+db.sqlite3
+.DS_Store
+media/
+static/
+
+# Django
+*.log
+local_settings.py
+
+# React
+frontend/node_modules/
+frontend/build/
+frontend/.env
+frontend/package-lock.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
