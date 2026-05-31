@@ -1,82 +1,197 @@
-# LexExpect - Юридическая платформа
+📚 LexExpect — юридическая платформа для оказания юридических услуг
+LexExpect — это веб-приложение для оказания юридических услуг, где клиенты могут создавать заявки на юридическую помощь, а адвокаты — принимать их в работу и управлять статусом в реальном времени.
 
-## 📋 О проекте
-LexExpect - это веб-приложение для юридических консультаций, позволяющее клиентам находить адвокатов и записываться на консультации.
+Проект разработан в рамках курсовой работы по дисциплине «Технология разработки программного обеспечения» (траектория В: React SPA + AJAX + JWT + WebSocket).
 
-## 🚀 Технологии
-- **Backend**: Django 4.2 + Django REST Framework
-- **Frontend**: React 18 + Bootstrap 5
-- **База данных**: SQLite
-- **Аутентификация**: JWT токены
+🚀 Технологический стек
+Backend
+Технология	Назначение
+Django 4.2	Веб-фреймворк
+Django REST Framework (DRF)	Создание REST API
+Simple JWT	JWT-аутентификация (access/refresh токены)
+Django Channels	WebSocket для real-time уведомлений
+Daphne	ASGI-сервер для поддержки WebSocket
+SQLite	База данных (разработка)
+django-cors-headers	Настройка CORS
+Frontend
+Технология	Назначение
+React 18	Библиотека для построения интерфейсов
+React Router	Маршрутизация
+Axios	HTTP-клиент (перехватчики для JWT)
+Bootstrap 5	Стилизация и адаптивность
+CSS переменные	Тёмная/светлая тема
+📋 Основной функционал
+Публичная часть (доступна всем)
+✅ Просмотр списка юридических услуг (с пагинацией)
 
-## 📁 Структура проекта
-lexexpect/
-├── backend/ # Django backend
-│ └── services/ # Основное приложение
-├── frontend/ # React frontend
-│ └── src/
-│ ├── components/ # React компоненты
-│ └── context/ # Контексты (Auth)
-├── media/ # Загруженные файлы
-├── venv/ # Виртуальное окружение
-├── manage.py # Django менеджер
-└── requirements.txt # Зависимости Python
-## 🔧 Установка и запуск
+✅ Просмотр списка адвокатов (с поиском и фильтрацией)
 
-### Предварительные требования
-- Python 3.9+
-- Node.js 18+
-- Git
+✅ Регистрация и аутентификация (JWT)
 
-### Быстрый старт
+Приватная часть (для авторизованных пользователей)
+Роль	Возможности
+Клиент	Создание заявок, просмотр своих заявок, удаление новых заявок, оставление отзывов
+Адвокат	Просмотр новых заявок, принятие/отклонение заявок, изменение статуса назначенных заявок, получение real-time уведомлений
+Администратор	Полный доступ к управлению через админ-панель Django
+Real-time уведомления (WebSocket)
+🔔 При создании новой заявки — уведомление всем адвокатам
 
-1. **Клонировать репозиторий**
-   `ash
-   git clone <url>
-   cd lexexpect
-Настроить backend
+🔔 При изменении статуса заявки — уведомление клиенту и назначенному адвокату
 
+Дополнительный функционал
+🌙 Тёмная/светлая тема (сохраняется в localStorage)
+
+🖼️ Загрузка аватара пользователя
+
+🔍 Поиск и фильтрация адвокатов по специализации
+
+📄 Пагинация на странице услуг (по 6 услуг)
+
+⭐ Отзывы с рейтингом (1–5 звёзд)
+
+✂️ Обрезка длинного описания с кнопкой «Показать полностью»
+
+🗂️ Структура проекта
+Backend
+text
+backend/
+├── config/                       # Настройки Django
+│   ├── __init__.py
+│   ├── asgi.py                   # ASGI для WebSocket
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── services/                     # Основное приложение (услуги, заявки)
+│   ├── migrations/
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── consumers.py              # WebSocket Consumer
+│   ├── models.py                 # Service, Lawyer, Case, Review
+│   ├── permissions.py            # Права доступа
+│   ├── serializers.py
+│   ├── signals.py                # Уведомления при изменении статуса
+│   ├── urls.py
+│   └── views.py                  # ViewSet'ы (API)
+├── users/                        # Приложение пользователей
+│   ├── migrations/
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py                 # User (кастомная модель)
+│   ├── serializers.py
+│   ├── urls.py
+│   └── views.py
+├── media/                        # Загруженные файлы (аватары, фото)
+├── static/                       # Статические файлы
+├── db.sqlite3
+├── manage.py
+└── requirements.txt
+Frontend
+text
+frontend/
+├── public/
+│   └── index.html
+├── src/
+│   ├── components/               # Переиспользуемые компоненты
+│   │   ├── Navbar.js
+│   │   └── Notifications.js
+│   ├── pages/                    # Страницы приложения
+│   │   ├── HomePage.js
+│   │   ├── Services.js
+│   │   ├── Lawyers.js
+│   │   ├── Cases.js
+│   │   ├── CaseCreate.js
+│   │   ├── CaseDetail.js
+│   │   ├── Login.js
+│   │   ├── Register.js
+│   │   └── Profile.js
+│   ├── context/
+│   │   └── AuthContext.js        # Управление JWT токенами
+│   ├── services/
+│   │   ├── api.js                # Axios клиент с интерцепторами
+│   │   └── websocket.js          # WebSocket клиент
+│   ├── App.js
+│   ├── index.js
+│   └── index.css                 # Глобальные стили + тёмная тема
+├── .env
+├── package.json
+└── README.md
+🛠 Установка и запуск
+Требования
+Python 3.9+
+
+Node.js 18+
+
+npm или yarn
+
+1. Клонирование репозитория
 bash
+git clone https://github.com/Justake206/lexexpect-course.git
+cd lexexpect-course
+2. Настройка бэкенда
+bash
+# Создание виртуального окружения
 python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
-Настроить frontend
 
+# Активация окружения (Windows)
+venv\Scripts\activate
+
+# Установка зависимостей
+pip install -r requirements.txt
+
+# Применение миграций
+python manage.py migrate
+
+# Создание суперпользователя
+python manage.py createsuperuser
+
+# Запуск ASGI-сервера (для поддержки WebSocket)
+daphne -b 127.0.0.1 -p 8000 backend.config.asgi:application
+3. Настройка фронтенда
 bash
 cd frontend
 npm install
 npm start
-Открыть в браузере
+4. Открыть в браузере
+Фронтенд: http://localhost:3000
 
-Frontend: http://localhost:3000
+Админка Django: http://127.0.0.1:8000/admin
 
-Backend API: http://127.0.0.1:8000/api/
+API (browsable): http://127.0.0.1:8000/api/services/
 
-Admin panel: http://127.0.0.1:8000/admin
-
-📝 Доступные скрипты
-Backend
-activate.bat - активация виртуального окружения
-
-python manage.py runserver - запуск сервера
-
-python manage.py makemigrations - создание миграций
-
-python manage.py migrate - применение миграций
-
-Frontend
-npm start - запуск в режиме разработки
-
-npm run build - сборка для продакшена
-
-🎯 Основные функции
-Регистрация и авторизация пользователей
-
-Просмотр списка адвокатов
-
-Просмотр услуг
-
-Создание заявок на консультацию
+Данные для входа в админ-панель
+Поле	Значение
+Логин	admin
+Пароль	Admin123456
+👥 API-эндпоинты (основные)
+Метод	Эндпоинт	Описание	Доступ
+POST	/api/auth/register/	Регистрация	Все
+POST	/api/auth/login/	Получение JWT (access/refresh)	Все
+POST	/api/auth/token/refresh/	Обновление access-токена	Все
+GET/PUT	/api/auth/profile/	Профиль пользователя	Авторизованные
+GET	/api/services/	Список услуг	Все
+GET	/api/lawyers/	Список адвокатов	Все
+GET/POST	/api/cases/	Список/создание заявок	Авторизованные
+GET/PUT/DELETE	/api/cases/{id}/	Детали/редактирование/удаление заявки	Автор/Админ
+POST	/api/cases/{id}/accept_case/	Принять заявку	Адвокат
+POST	/api/cases/{id}/reject_case/	Отклонить заявку	Адвокат
+PATCH	/api/cases/{id}/update_status/	Изменить статус	Назначенный адвокат
+POST	/api/reviews/	Оставить отзыв	Клиент
+🔄 Бизнес-логика (полный цикл заявки)
+text
+1. КЛИЕНТ создаёт заявку
+         ↓
+2. ВСЕ АДВОКАТЫ получают real-time уведомление 🔔
+         ↓
+3. АДВОКАТ принимает заявку (первый, кто нажал "Принять")
+         ↓
+4. Заявка закрепляется за адвокатом, статус "ПРИНЯТА"
+         ↓
+5. Другим адвокатам заявка больше НЕ ВИДНА
+         ↓
+6. АДВОКАТ начинает работу → статус "В РАБОТЕ"
+         ↓
+7. АДВОКАТ завершает работу → статус "ЗАВЕРШЕНА"
+         ↓
+8. КЛИЕНТ получает уведомление и может оставить ОТЗЫВ
