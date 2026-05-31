@@ -443,7 +443,7 @@ body:has(#header) * {
     border-top-color: var(--border-color) !important;
 }
 
-/* Уведомления - выпадающее окно */
+/* Уведомления - выпадающее окно! */
 [data-theme="dark"] .position-absolute.bg-white.shadow-lg {
     background-color: var(--card-bg) !important;
     color: var(--text-primary) !important;
