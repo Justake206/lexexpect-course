@@ -54,38 +54,47 @@ Real-time уведомления (WebSocket)
 
 🗂️ Структура проекта
 Backend
-
 backend/
-├── config/                       # Настройки Django
+├── config/                           # Настройки Django
 │   ├── __init__.py
-│   ├── asgi.py                   # ASGI для WebSocket
+│   ├── asgi.py                       # ASGI для WebSocket
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
-├── services/                     # Основное приложение (услуги, заявки)
+│
+├── services/                         # Основное приложение (услуги, заявки)
 │   ├── migrations/
+│   │   └── __init__.py
 │   ├── __init__.py
 │   ├── admin.py
 │   ├── apps.py
-│   ├── consumers.py              # WebSocket Consumer
-│   ├── models.py                 # Service, Lawyer, Case, Review
-│   ├── permissions.py            # Права доступа
+│   ├── consumers.py                  # WebSocket Consumer
+│   ├── models.py                     # Service, Lawyer, Case, Review
+│   ├── permissions.py                # Права доступа
 │   ├── serializers.py
-│   ├── signals.py                # Уведомления при изменении статуса
+│   ├── signals.py                    # Уведомления при изменении статуса
 │   ├── urls.py
-│   └── views.py                  # ViewSet'ы (API)
-├── users/                        # Приложение пользователей
+│   └── views.py                      # ViewSet'ы (API)
+│
+├── users/                            # Приложение пользователей
 │   ├── migrations/
+│   │   └── __init__.py
 │   ├── __init__.py
 │   ├── admin.py
 │   ├── apps.py
-│   ├── models.py                 # User (кастомная модель)
+│   ├── models.py                     # User (кастомная модель)
 │   ├── serializers.py
 │   ├── urls.py
 │   └── views.py
-├── media/                        # Загруженные файлы (аватары, фото)
-├── static/                       # Статические файлы
-├── db.sqlite3
+│
+├── media/                            # Загруженные файлы (аватары, фото)
+│   ├── avatars/
+│   ├── lawyers/
+│   └── profiles/
+│
+├── static/                           # Статические файлы
+│
+├── db.sqlite3                        # База данных
 ├── manage.py
 └── requirements.txt
 
@@ -93,11 +102,13 @@ Frontend
 frontend/
 ├── public/
 │   └── index.html
+│
 ├── src/
-│   ├── components/               # Переиспользуемые компоненты
+│   ├── components/                   # Переиспользуемые компоненты
 │   │   ├── Navbar.js
 │   │   └── Notifications.js
-│   ├── pages/                    # Страницы приложения
+│   │
+│   ├── pages/                        # Страницы приложения
 │   │   ├── HomePage.js
 │   │   ├── Services.js
 │   │   ├── Lawyers.js
@@ -107,14 +118,18 @@ frontend/
 │   │   ├── Login.js
 │   │   ├── Register.js
 │   │   └── Profile.js
+│   │
 │   ├── context/
-│   │   └── AuthContext.js        # Управление JWT токенами
+│   │   └── AuthContext.js            # Управление JWT токенами
+│   │
 │   ├── services/
-│   │   ├── api.js                # Axios клиент с интерцепторами
-│   │   └── websocket.js          # WebSocket клиент
+│   │   ├── api.js                    # Axios клиент с интерцепторами
+│   │   └── websocket.js              # WebSocket клиент
+│   │
 │   ├── App.js
 │   ├── index.js
-│   └── index.css                 # Глобальные стили + тёмная тема
+│   └── index.css                     # Глобальные стили + тёмная тема
+│
 ├── .env
 ├── package.json
 └── README.md
