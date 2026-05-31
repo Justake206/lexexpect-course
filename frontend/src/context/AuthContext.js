@@ -103,7 +103,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Очистка ошибки
+    // Очистка ошибки!
     const clearError = () => {
         setError(null);
     };
