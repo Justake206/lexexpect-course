@@ -54,7 +54,7 @@ Real-time уведомления (WebSocket)
 
 🗂️ Структура проекта
 Backend
-text
+
 backend/
 ├── config/                       # Настройки Django
 │   ├── __init__.py
@@ -88,8 +88,8 @@ backend/
 ├── db.sqlite3
 ├── manage.py
 └── requirements.txt
+
 Frontend
-text
 frontend/
 ├── public/
 │   └── index.html
@@ -118,6 +118,7 @@ frontend/
 ├── .env
 ├── package.json
 └── README.md
+
 🛠 Установка и запуск
 Требования
 Python 3.9+
@@ -126,12 +127,6 @@ Node.js 18+
 
 npm или yarn
 
-1. Клонирование репозитория
-bash
-git clone https://github.com/Justake206/lexexpect-course.git
-cd lexexpect-course
-2. Настройка бэкенда
-bash
 # Создание виртуального окружения
 python -m venv venv
 
@@ -161,26 +156,7 @@ npm start
 
 API (browsable): http://127.0.0.1:8000/api/services/
 
-Данные для входа в админ-панель
-Поле	Значение
-Логин	admin
-Пароль	Admin123456
-👥 API-эндпоинты (основные)
-Метод	Эндпоинт	Описание	Доступ
-POST	/api/auth/register/	Регистрация	Все
-POST	/api/auth/login/	Получение JWT (access/refresh)	Все
-POST	/api/auth/token/refresh/	Обновление access-токена	Все
-GET/PUT	/api/auth/profile/	Профиль пользователя	Авторизованные
-GET	/api/services/	Список услуг	Все
-GET	/api/lawyers/	Список адвокатов	Все
-GET/POST	/api/cases/	Список/создание заявок	Авторизованные
-GET/PUT/DELETE	/api/cases/{id}/	Детали/редактирование/удаление заявки	Автор/Админ
-POST	/api/cases/{id}/accept_case/	Принять заявку	Адвокат
-POST	/api/cases/{id}/reject_case/	Отклонить заявку	Адвокат
-PATCH	/api/cases/{id}/update_status/	Изменить статус	Назначенный адвокат
-POST	/api/reviews/	Оставить отзыв	Клиент
 🔄 Бизнес-логика (полный цикл заявки)
-text
 1. КЛИЕНТ создаёт заявку
          ↓
 2. ВСЕ АДВОКАТЫ получают real-time уведомление 🔔
