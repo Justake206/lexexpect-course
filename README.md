@@ -55,81 +55,67 @@ Real-time уведомления (WebSocket)
 🗂️ Структура проекта
 Backend
 backend/
-├── config/                           # Настройки Django
-│   ├── __init__.py
-│   ├── asgi.py                       # ASGI для WebSocket
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-│
-├── services/                         # Основное приложение (услуги, заявки)
-│   ├── migrations/
-│   │   └── __init__.py
-│   ├── __init__.py
-│   ├── admin.py
-│   ├── apps.py
-│   ├── consumers.py                  # WebSocket Consumer
-│   ├── models.py                     # Service, Lawyer, Case, Review
-│   ├── permissions.py                # Права доступа
-│   ├── serializers.py
-│   ├── signals.py                    # Уведомления при изменении статуса
-│   ├── urls.py
-│   └── views.py                      # ViewSet'ы (API)
-│
-├── users/                            # Приложение пользователей
-│   ├── migrations/
-│   │   └── __init__.py
-│   ├── __init__.py
-│   ├── admin.py
-│   ├── apps.py
-│   ├── models.py                     # User (кастомная модель)
-│   ├── serializers.py
-│   ├── urls.py
-│   └── views.py
-│
-├── media/                            # Загруженные файлы (аватары, фото)
-│   ├── avatars/
-│   ├── lawyers/
-│   └── profiles/
-│
-├── static/                           # Статические файлы
-│
-├── db.sqlite3                        # База данных
+├── config/
+│ ├── init.py
+│ ├── asgi.py
+│ ├── settings.py
+│ ├── urls.py
+│ └── wsgi.py
+├── services/
+│ ├── migrations/
+│ │ └── init.py
+│ ├── init.py
+│ ├── admin.py
+│ ├── apps.py
+│ ├── consumers.py
+│ ├── models.py
+│ ├── permissions.py
+│ ├── serializers.py
+│ ├── signals.py
+│ ├── urls.py
+│ └── views.py
+├── users/
+│ ├── migrations/
+│ │ └── init.py
+│ ├── init.py
+│ ├── admin.py
+│ ├── apps.py
+│ ├── models.py
+│ ├── serializers.py
+│ ├── urls.py
+│ └── views.py
+├── media/
+├── static/
+├── db.sqlite3
 ├── manage.py
 └── requirements.txt
 
 Frontend
 frontend/
 ├── public/
-│   └── index.html
-│
+│ └── index.html
 ├── src/
-│   ├── components/                   # Переиспользуемые компоненты
-│   │   ├── Navbar.js
-│   │   └── Notifications.js
-│   │
-│   ├── pages/                        # Страницы приложения
-│   │   ├── HomePage.js
-│   │   ├── Services.js
-│   │   ├── Lawyers.js
-│   │   ├── Cases.js
-│   │   ├── CaseCreate.js
-│   │   ├── CaseDetail.js
-│   │   ├── Login.js
-│   │   ├── Register.js
-│   │   └── Profile.js
-│   │
-│   ├── context/
-│   │   └── AuthContext.js            # Управление JWT токенами
-│   │
-│   ├── services/
-│   │   ├── api.js                    # Axios клиент с интерцепторами
-│   │   └── websocket.js              # WebSocket клиент
-│   │
-│   ├── App.js
-│   ├── index.js
-│   └── index.css                     # Глобальные стили + тёмная тема
-│
+│ ├── components/
+│ │ ├── Navbar.js
+│ │ └── Notifications.js
+│ ├── pages/
+│ │ ├── HomePage.js
+│ │ ├── Services.js
+│ │ ├── Lawyers.js
+│ │ ├── Cases.js
+│ │ ├── CaseCreate.js
+│ │ ├── CaseDetail.js
+│ │ ├── Login.js
+│ │ ├── Register.js
+│ │ └── Profile.js
+│ ├── context/
+│ │ └── AuthContext.js
+│ ├── services/
+│ │ ├── api.js
+│ │ └── websocket.js
+│ ├── App.js
+│ ├── index.js
+│ └── index.css
 ├── .env
 ├── package.json
 └── README.md
