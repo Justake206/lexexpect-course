@@ -41,7 +41,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
 
 class LawyerViewSet(viewsets.ModelViewSet):
     """
-    ViewSet для работы с адвокатами (Lawyer)
+    ViewSet для работы с адвокатами (Lawyer)!
     """
     queryset = Lawyer.objects.filter(is_verified=True)
     serializer_class = LawyerSerializer
@@ -53,7 +53,7 @@ class LawyerViewSet(viewsets.ModelViewSet):
 
 class CaseViewSet(viewsets.ModelViewSet):
     """
-    ViewSet для работы с заявками (Case)
+    ViewSet для работы с заявками (Case)!
     """
     queryset = Case.objects.all()
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]

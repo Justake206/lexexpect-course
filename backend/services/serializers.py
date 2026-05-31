@@ -105,7 +105,7 @@ class CaseDetailSerializer(serializers.ModelSerializer):
 
 class CaseCreateUpdateSerializer(serializers.ModelSerializer):
     """
-    Сериализатор для создания и обновления заявок
+    Сериализатор для создания и обновления заявок!
     """
 
     class Meta:
