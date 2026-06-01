@@ -59,7 +59,7 @@
 
 ---
 
-## 🗂️ Структура проекта
+``` ## 🗂️ Структура проекта
 
 ### Backend
 backend/
@@ -130,13 +130,14 @@ frontend/
 ├── package.json
 └── README.md
 
+```
 ## 🛠 Установка и запуск
 
 ### Требования
 - Python 3.9+
 - Node.js 18+
 - npm или yarn
-
+```
 ### 1. Клонирование репозитория
 bash
 git clone https://github.com/Justake206/lexexpect-course.git
@@ -191,7 +192,7 @@ POST	/api/cases/{id}/reject_case/	Отклонить заявку	Адвокат
 PATCH	/api/cases/{id}/update_status/	Изменить статус	Назначенный адвокат
 POST	/api/reviews/	Оставить отзыв	Клиент
 
-
+```
 🔄 Бизнес-логика (полный цикл заявки)
 text
 1. КЛИЕНТ создаёт заявку
