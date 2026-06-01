@@ -11,6 +11,10 @@ function CaseDetail() {
     const [loading, setLoading] = useState(true);
     const [showFullDescription, setShowFullDescription] = useState(false);
     const [showFullReview, setShowFullReview] = useState(false);
+    const [statusLoading, setStatusLoading] = useState(false);
+    const [acceptLoading, setAcceptLoading] = useState(false);
+    const [rejectLoading, setRejectLoading] = useState(false);
+    const [reviewLoading, setReviewLoading] = useState(false);
     const [error, setError] = useState('');
     const [reviewText, setReviewText] = useState('');
     const [reviewRating, setReviewRating] = useState(5);
@@ -30,71 +34,15 @@ function CaseDetail() {
         }
     };
 
-    // ========== ОПТИМИСТИЧНОЕ ОБНОВЛЕНИЕ СТАТУСА ==========
-    const updateStatusOptimistic = async (newStatus) => {
-        const oldStatus = caseData.status;
-
-        // 1. Мгновенно обновляем UI (оптимистично)
-        setCaseData(prev => ({ ...prev, status: newStatus }));
-
+    const handleStatusChange = async (newStatus) => {
+        setStatusLoading(true);
         try {
-            // 2. Реальный запрос к серверу
             await api.patch(`/cases/${id}/update_status/`, { status: newStatus });
-
-            // 3. Показываем успех (без перезагрузки всей страницы)
-            setError('✅ Статус обновлён');
-            setTimeout(() => setError(''), 2000);
-        } catch (err) {
-            // 4. При ошибке — откатываем изменения
-            setCaseData(prev => ({ ...prev, status: oldStatus }));
-            setError('❌ Ошибка обновления статуса');
-            setTimeout(() => setError(''), 3000);
-        }
-    };
-
-    // ========== ОПТИМИСТИЧНОЕ ПРИНЯТИЕ ЗАЯВКИ ==========
-    const acceptCaseOptimistic = async () => {
-        if (!window.confirm('Принять заявку?')) return;
-
-        const oldData = caseData;
-        const lawyerName = user?.first_name || user?.username;
-
-        // Мгновенно обновляем UI
-        setCaseData(prev => ({
-            ...prev,
-            status: 'accepted',
-            lawyer: { ...prev.lawyer, full_name: lawyerName }
-        }));
-
-        try {
-            await api.post(`/cases/${id}/accept_case/`);
-            // Обновляем данные с сервера (чтобы получить актуального юриста)
-            const response = await api.get(`/cases/${id}/`);
-            setCaseData(response.data);
-            setError('✅ Заявка принята!');
-            setTimeout(() => setError(''), 2000);
-        } catch (err) {
-            setCaseData(oldData);
-            setError('❌ Ошибка при принятии заявки');
-            setTimeout(() => setError(''), 3000);
-        }
-    };
-
-    // ========== ОПТИМИСТИЧНОЕ ОТКЛОНЕНИЕ ==========
-    const rejectCaseOptimistic = async () => {
-        if (!window.confirm('Отклонить заявку?')) return;
-
-        const oldStatus = caseData.status;
-        setCaseData(prev => ({ ...prev, status: 'rejected' }));
-
-        try {
-            await api.post(`/cases/${id}/reject_case/`);
-            setError('❌ Заявка отклонена');
-            setTimeout(() => navigate('/cases'), 1500);
-        } catch (err) {
-            setCaseData(prev => ({ ...prev, status: oldStatus }));
-            setError('❌ Ошибка при отклонении');
-            setTimeout(() => setError(''), 3000);
+            await fetchCase();
+        } catch (error) {
+            setError(error.response?.data?.error || 'Ошибка');
+        } finally {
+            setStatusLoading(false);
         }
     };
 
@@ -105,20 +53,71 @@ function CaseDetail() {
         }
     };
 
+    const handleAcceptCase = async () => {
+        if (window.confirm('Принять заявку?')) {
+            setAcceptLoading(true);
+            try {
+                await api.post(`/cases/${id}/accept_case/`);
+                alert('✅ Заявка принята!');
+                await fetchCase();
+            } catch (error) {
+                setError(error.response?.data?.error || 'Ошибка');
+            } finally {
+                setAcceptLoading(false);
+            }
+        }
+    };
+
+    const handleRejectCase = async () => {
+        if (window.confirm('Вы уверены, что хотите отклонить эту заявку?')) {
+            setRejectLoading(true);
+            setError('');
+            try {
+                const response = await api.post(`/cases/${id}/reject_case/`);
+
+                if (response.data.status === 'rejected_final') {
+                    alert('❌ Все адвокаты отклонили заявку. Заявка отклонена окончательно.');
+                    navigate('/cases');
+                } else {
+                    alert(`✅ Вы отклонили заявку. Она осталась видна другим адвокатам. (Осталось адвокатов: ${response.data.remaining_lawyers})`);
+                    await fetchCase();
+                }
+            } catch (error) {
+                setError(error.response?.data?.error || 'Ошибка при отклонении заявки');
+            } finally {
+                setRejectLoading(false);
+            }
+        }
+    };
+
+    // ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ ОТЗЫВА
     const handleReviewSubmit = async (e) => {
         e.preventDefault();
+        setReviewLoading(true);
+        setError('');
         try {
-            await api.post('/reviews/', {
-                case_id: parseInt(id),
-                rating: parseInt(reviewRating),
+            const response = await api.post('/reviews/', {
+                case: Number(id),           // ← ИЗМЕНЕНО: case (не case_id) и Number()
+                rating: Number(reviewRating),
                 text: reviewText
             });
-            alert('✅ Отзыв отправлен!');
+            console.log('Ответ сервера:', response.data);
+            alert('✅ Отзыв отправлен! Спасибо за вашу оценку.');
             setReviewText('');
+            setReviewRating(5);
             await fetchCase();
         } catch (error) {
-            setError('Ошибка отправки отзыва');
-            setTimeout(() => setError(''), 3000);
+            console.error('Ошибка:', error.response?.data);
+            const errorData = error.response?.data;
+            let errorMessage = 'Ошибка отправки отзыва';
+            if (errorData?.case) errorMessage = errorData.case;
+            else if (errorData?.status) errorMessage = errorData.status;
+            else if (errorData?.user) errorMessage = errorData.user;
+            else if (errorData?.lawyer) errorMessage = errorData.lawyer;
+            else if (typeof errorData === 'string') errorMessage = errorData;
+            setError(errorMessage);
+        } finally {
+            setReviewLoading(false);
         }
     };
 
@@ -164,7 +163,7 @@ function CaseDetail() {
                             </div>
                         )}
 
-                        {/* Основная карточка! */}
+                        {/* Основная карточка */}
                         <div className="card border-0 shadow-sm rounded-3 mb-3">
                             <div className="card-header bg-primary text-white py-2 d-flex justify-content-between align-items-center">
                                 <h5 className="mb-0">Заявка #{caseData.id}</h5>
@@ -197,16 +196,16 @@ function CaseDetail() {
 
                         {canAcceptReject && (
                             <div className="d-flex gap-2 justify-content-center mb-3">
-                                <button className="btn btn-success btn-sm px-3 rounded-pill" onClick={acceptCaseOptimistic}>✅ Принять</button>
-                                <button className="btn btn-danger btn-sm px-3 rounded-pill" onClick={rejectCaseOptimistic}>❌ Отклонить</button>
+                                <button className="btn btn-success btn-sm px-3 rounded-pill" onClick={handleAcceptCase} disabled={acceptLoading}>✅ Принять</button>
+                                <button className="btn btn-danger btn-sm px-3 rounded-pill" onClick={handleRejectCase} disabled={rejectLoading}>❌ Отклонить</button>
                             </div>
                         )}
 
                         {canChangeStatus && caseData.status !== 'completed' && caseData.status !== 'cancelled' && caseData.status !== 'rejected' && (
                             <div className="d-flex gap-2 justify-content-center flex-wrap mb-3">
-                                {caseData.status === 'accepted' && <button className="btn btn-primary btn-sm rounded-pill px-3" onClick={() => updateStatusOptimistic('in_progress')}>▶️ Начать работу</button>}
-                                {caseData.status === 'in_progress' && <button className="btn btn-success btn-sm rounded-pill px-3" onClick={() => updateStatusOptimistic('completed')}>✅ Завершить</button>}
-                                {(caseData.status === 'accepted' || caseData.status === 'in_progress') && <button className="btn btn-danger btn-sm rounded-pill px-3" onClick={() => updateStatusOptimistic('cancelled')}>❌ Отменить</button>}
+                                {caseData.status === 'accepted' && <button className="btn btn-primary btn-sm rounded-pill px-3" onClick={() => handleStatusChange('in_progress')}>▶️ Начать работу</button>}
+                                {caseData.status === 'in_progress' && <button className="btn btn-success btn-sm rounded-pill px-3" onClick={() => handleStatusChange('completed')}>✅ Завершить</button>}
+                                {(caseData.status === 'accepted' || caseData.status === 'in_progress') && <button className="btn btn-danger btn-sm rounded-pill px-3" onClick={() => handleStatusChange('cancelled')}>❌ Отменить</button>}
                             </div>
                         )}
 
@@ -221,7 +220,7 @@ function CaseDetail() {
                                 <div className="card-header bg-warning py-1 px-3"><h6 className="mb-0 small">⭐ Оставить отзыв</h6></div>
                                 <div className="card-body p-2">
                                     <form onSubmit={handleReviewSubmit}>
-                                        <select className="form-select form-select-sm mb-2" value={reviewRating} onChange={(e) => setReviewRating(e.target.value)}>
+                                        <select className="form-select form-select-sm mb-2" value={reviewRating} onChange={(e) => setReviewRating(Number(e.target.value))}>
                                             <option value="5">⭐⭐⭐⭐⭐ 5 - Отлично</option>
                                             <option value="4">⭐⭐⭐⭐☆ 4 - Хорошо</option>
                                             <option value="3">⭐⭐⭐☆☆ 3 - Нормально</option>
@@ -229,7 +228,7 @@ function CaseDetail() {
                                             <option value="1">⭐☆☆☆☆ 1 - Ужасно</option>
                                         </select>
                                         <textarea className="form-control form-control-sm mb-2" rows="2" placeholder="Ваш отзыв..." value={reviewText} onChange={(e) => setReviewText(e.target.value)} required></textarea>
-                                        <button type="submit" className="btn btn-primary btn-sm w-100 rounded-pill">✉️ Отправить</button>
+                                        <button type="submit" className="btn btn-primary btn-sm w-100 rounded-pill" disabled={reviewLoading}>✉️ Отправить</button>
                                     </form>
                                 </div>
                             </div>

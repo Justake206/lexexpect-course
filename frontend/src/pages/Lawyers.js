@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -11,6 +12,7 @@ function Lawyers() {
     const [selectedLawyer, setSelectedLawyer] = useState(null);
     const [specializations, setSpecializations] = useState([]);
     const { isAuthenticated } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchLawyers();
@@ -55,6 +57,21 @@ function Lawyers() {
     const closeModal = () => {
         setSelectedLawyer(null);
         document.body.style.overflow = 'auto';
+    };
+
+    // Функция для кнопки "Записаться на консультацию"
+    const handleConsultation = () => {
+        if (!isAuthenticated) {
+            if (window.confirm('Для создания заявки необходимо войти в систему. Перейти на страницу входа?')) {
+                navigate('/login');
+            }
+            return;
+        }
+
+        alert(
+            'Для записи на консультацию перейдите в раздел "Мои заявки" → "Новая заявка".\n\n' +
+            'Вашу заявку увидит и сможет принять любой свободный адвокат.'
+        );
     };
 
     const renderStars = (rating) => {
@@ -153,7 +170,6 @@ function Lawyers() {
                                             <span className="text-muted small ms-1">({lawyer.rating || 0})</span>
                                         </div>
                                         <p className="text-muted small mb-2">📅 {lawyer.experience} лет опыта</p>
-                                        {/* Обрезанное описание - 80 символов */}
                                         {lawyer.bio && (
                                             <p className="text-muted small flex-grow-1">
                                                 {lawyer.bio.slice(0, 80)}...
@@ -164,7 +180,7 @@ function Lawyers() {
                                                 className="btn btn-primary rounded-pill px-4 w-100"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    // Действие при клике на кнопку
+                                                    handleConsultation();
                                                 }}
                                             >
                                                 Записаться на консультацию
@@ -240,7 +256,13 @@ function Lawyers() {
                                 <p className="text-muted">{selectedLawyer.bio}</p>
                             </div>
                             <div className="d-flex gap-2">
-                                <button className="btn btn-primary flex-grow-1 rounded-pill">
+                                <button
+                                    className="btn btn-primary flex-grow-1 rounded-pill"
+                                    onClick={() => {
+                                        closeModal();
+                                        handleConsultation();
+                                    }}
+                                >
                                     Записаться на консультацию
                                 </button>
                                 <button

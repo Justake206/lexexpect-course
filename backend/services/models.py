@@ -148,11 +148,13 @@ class Case(models.Model):
 
     # Статусы заявки (выбор из предопределенных значений)
     STATUS_CHOICES = (
-        ('new', 'Новая'),  # Только создана
+        ('new', 'Новая'),          # Только создана
         ('pending', 'На рассмотрении'),  # Адвокат рассматривает
-        ('in_progress', 'В работе'),  # Адвокат работает
-        ('completed', 'Завершена'),  # Работа завершена
-        ('cancelled', 'Отменена'),  # Отменена клиентом/админом
+        ('accepted', 'Принята'),   # Адвокат принял заявку
+        ('rejected', 'Отклонена'), # Отклонена (всеми адвокатами)
+        ('in_progress', 'В работе'),    # Адвокат работает
+        ('completed', 'Завершена'),     # Работа завершена
+        ('cancelled', 'Отменена'),      # Отменена клиентом/админом
     )
 
     # Клиент - кто создал заявку (связь с User)
@@ -210,6 +212,14 @@ class Case(models.Model):
         verbose_name='Дата обновления'
     )
 
+    # Адвокаты, которые отклонили эту заявку
+    rejected_by = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name='rejected_cases',
+        verbose_name='Отклонившие адвокаты'
+    )
+
     class Meta:
         verbose_name = 'Заявка'
         verbose_name_plural = 'Заявки'
@@ -217,6 +227,21 @@ class Case(models.Model):
 
     def __str__(self):
         return f"Заявка #{self.id} - {self.title}"
+
+    def save(self, *args, **kwargs):
+        """
+        Переопределяем метод сохранения.
+        Если статус меняется с 'rejected' на 'new' — очищаем список отклонивших адвокатов.
+        Это позволяет админу "возродить" заявку после того, как все адвокаты её отклонили.
+        """
+        if self.pk:
+            try:
+                old_instance = Case.objects.get(pk=self.pk)
+                if old_instance.status == 'rejected' and self.status == 'new':
+                    self.rejected_by.clear()
+            except Case.DoesNotExist:
+                pass
+        super().save(*args, **kwargs)
 
 
 class Review(models.Model):

@@ -28,9 +28,6 @@ from .permissions import (
 
 
 class ServiceViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet для работы с услугами (Service)
-    """
     queryset = Service.objects.filter(is_active=True)
     serializer_class = ServiceSerializer
     permission_classes = [IsAdminOrReadOnly]
@@ -40,9 +37,6 @@ class ServiceViewSet(viewsets.ModelViewSet):
 
 
 class LawyerViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet для работы с адвокатами (Lawyer)!
-    """
     queryset = Lawyer.objects.filter(is_verified=True)
     serializer_class = LawyerSerializer
     permission_classes = [IsAdminOrReadOnly]
@@ -52,9 +46,6 @@ class LawyerViewSet(viewsets.ModelViewSet):
 
 
 class CaseViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet для работы с заявками (Case)!
-    """
     queryset = Case.objects.all()
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'description']
@@ -73,7 +64,7 @@ class CaseViewSet(viewsets.ModelViewSet):
             return Case.objects.filter(
                 models.Q(lawyer=user.lawyer_profile) |
                 models.Q(client=user) |
-                models.Q(status='new')
+                (models.Q(status='new') & ~models.Q(rejected_by=user))
             ).distinct()
 
         return Case.objects.filter(client=user)
@@ -186,12 +177,31 @@ class CaseViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        if user in case.rejected_by.all():
+            return Response(
+                {'error': 'Вы уже отклоняли эту заявку'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        case.rejected_by.add(user)
+
+        all_lawyers = Lawyer.objects.filter(is_verified=True)
+        all_lawyer_users = [lawyer.user for lawyer in all_lawyers]
+        remaining_lawyers = [u for u in all_lawyer_users if u not in case.rejected_by.all()]
+
+        if remaining_lawyers:
+            return Response({
+                'message': f'Вы отклонили заявку. Она осталась видна другим адвокатам.',
+                'remaining_lawyers': len(remaining_lawyers),
+                'status': 'still_available'
+            })
+
         case.status = 'rejected'
         case.save()
 
         return Response({
-            'success': True,
-            'message': f'Заявка #{case.id} отклонена'
+            'message': 'Все адвокаты отклонили заявку. Заявка отклонена окончательно.',
+            'status': 'rejected_final'
         })
 
     @action(detail=True, methods=['patch'])
@@ -278,15 +288,15 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """При создании отзыва"""
-        case_id = self.request.data.get('case_id')
+        case_id = self.request.data.get('case')
 
         if not case_id:
-            raise serializers.ValidationError({"case_id": "Не указана заявка"})
+            raise serializers.ValidationError({"case": "Не указана заявка"})
 
         try:
             case = Case.objects.get(id=case_id)
         except Case.DoesNotExist:
-            raise serializers.ValidationError({"case_id": "Заявка не найдена"})
+            raise serializers.ValidationError({"case": "Заявка не найдена"})
 
         # Проверка: заявка должна быть завершена
         if case.status != 'completed':
@@ -298,7 +308,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
         # Проверка: отзыв ещё не оставлен
         if hasattr(case, 'review'):
-            raise serializers.ValidationError("Вы уже оставляли отзыв на эту заявку")
+            raise serializers.ValidationError({"case": "Вы уже оставляли отзыв на эту заявку"})
+
+        # Проверка: у заявки есть адвокат
+        if not case.lawyer:
+            raise serializers.ValidationError({"lawyer": "У этой заявки нет назначенного адвоката"})
 
         # Сохраняем отзыв
         serializer.save(
@@ -309,6 +323,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def by_lawyer(self, request):
+        """Получение отзывов по адвокату"""
         lawyer_id = request.query_params.get('lawyer_id')
 
         if not lawyer_id:
