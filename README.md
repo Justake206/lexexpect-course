@@ -58,43 +58,165 @@
 - ✂️ **Обрезка длинного описания** с кнопкой «Показать полностью»
 
 ---
-Создание виртуального окружения
+
+## 🗂️ Структура проекта
+
+### Backend
+backend/
+├── config/
+│ ├── init.py
+│ ├── asgi.py
+│ ├── settings.py
+│ ├── urls.py
+│ └── wsgi.py
+├── services/
+│ ├── migrations/
+│ │ └── init.py
+│ ├── init.py
+│ ├── admin.py
+│ ├── apps.py
+│ ├── consumers.py
+│ ├── models.py
+│ ├── permissions.py
+│ ├── serializers.py
+│ ├── signals.py
+│ ├── urls.py
+│ └── views.py
+├── users/
+│ ├── migrations/
+│ │ └── init.py
+│ ├── init.py
+│ ├── admin.py
+│ ├── apps.py
+│ ├── models.py
+│ ├── serializers.py
+│ ├── urls.py
+│ └── views.py
+├── media/
+├── static/
+├── db.sqlite3
+├── manage.py
+└── requirements.txt
+
+text
+
+### Frontend
+frontend/
+├── public/
+│ └── index.html
+├── src/
+│ ├── components/
+│ │ ├── Navbar.js
+│ │ └── Notifications.js
+│ ├── pages/
+│ │ ├── HomePage.js
+│ │ ├── Services.js
+│ │ ├── Lawyers.js
+│ │ ├── Cases.js
+│ │ ├── CaseCreate.js
+│ │ ├── CaseDetail.js
+│ │ ├── Login.js
+│ │ ├── Register.js
+│ │ └── Profile.js
+│ ├── context/
+│ │ └── AuthContext.js
+│ ├── services/
+│ │ ├── api.js
+│ │ └── websocket.js
+│ ├── App.js
+│ ├── index.js
+│ └── index.css
+├── .env
+├── package.json
+└── README.md
+
+text
+
+---
+
+## 🛠 Установка и запуск
+
+### Требования
+- Python 3.9+
+- Node.js 18+
+- npm или yarn
+
+### 1. Клонирование репозитория
+```bash
+git clone https://github.com/Justake206/lexexpect-course.git
+cd lexexpect-course
+2. Настройка бэкенда
+bash
+# Создание виртуального окружения
 python -m venv venv
 
-Активация окружения (Windows)
+# Активация окружения (Windows)
 venv\Scripts\activate
 
-Установка зависимостей
+# Установка зависимостей
 pip install -r requirements.txt
 
-Применение миграций
+# Применение миграций
 python manage.py migrate
 
-Создание суперпользователя
+# Создание суперпользователя
 python manage.py createsuperuser
 
-Запуск ASGI-сервера (для поддержки WebSocket)
-daphne -b 127.0.0.1 -p 8000 backend.config.asgi:application 3. Настройка фронтенда bash cd frontend npm install npm start 4. Открыть в браузере Фронтенд: http://localhost:3000
+# Запуск ASGI-сервера (для поддержки WebSocket)
+daphne -b 127.0.0.1 -p 8000 backend.config.asgi:application
+3. Настройка фронтенда
+bash
+cd frontend
+npm install
+npm start
+4. Открыть в браузере
+Фронтенд: http://localhost:3000
 
 Админка Django: http://127.0.0.1:8000/admin
 
 API (browsable): http://127.0.0.1:8000/api/services/
 
+Данные для входа в админ-панель
+Поле	Значение
+Логин	admin
+Пароль	Admin123456
+👥 API-эндпоинты (основные)
+Метод	Эндпоинт	Описание	Доступ
+POST	/api/auth/register/	Регистрация	Все
+POST	/api/auth/login/	Получение JWT (access/refresh)	Все
+POST	/api/auth/token/refresh/	Обновление access-токена	Все
+GET/PUT	/api/auth/profile/	Профиль пользователя	Авторизованные
+GET	/api/services/	Список услуг	Все
+GET	/api/lawyers/	Список адвокатов	Все
+GET/POST	/api/cases/	Список/создание заявок	Авторизованные
+GET/PUT/DELETE	/api/cases/{id}/	Детали/редактирование/удаление заявки	Автор/Админ
+POST	/api/cases/{id}/accept_case/	Принять заявку	Адвокат
+POST	/api/cases/{id}/reject_case/	Отклонить заявку	Адвокат
+PATCH	/api/cases/{id}/update_status/	Изменить статус	Назначенный адвокат
+POST	/api/reviews/	Оставить отзыв	Клиент
 🔄 Бизнес-логика (полный цикл заявки)
-
-КЛИЕНТ создаёт заявку ↓
-
-ВСЕ АДВОКАТЫ получают real-time уведомление 🔔 ↓
-
-АДВОКАТ принимает заявку (первый, кто нажал "Принять") ↓
-
-Заявка закрепляется за адвокатом, статус "ПРИНЯТА" ↓
-
-Другим адвокатам заявка больше НЕ ВИДНА ↓
-
-АДВОКАТ начинает работу → статус "В РАБОТЕ" ↓
-
-АДВОКАТ завершает работу → статус "ЗАВЕРШЕНА" ↓
-
-КЛИЕНТ получает уведомление и может оставить ОТЗЫВ
-
+text
+1. КЛИЕНТ создаёт заявку
+         ↓
+2. ВСЕ АДВОКАТЫ получают real-time уведомление 🔔
+         ↓
+3. АДВОКАТ принимает заявку (первый, кто нажал "Принять")
+         ↓
+4. Заявка закрепляется за адвокатом, статус "ПРИНЯТА"
+         ↓
+5. Другим адвокатам заявка больше НЕ ВИДНА
+         ↓
+6. АДВОКАТ начинает работу → статус "В РАБОТЕ"
+         ↓
+7. АДВОКАТ завершает работу → статус "ЗАВЕРШЕНА"
+         ↓
+8. КЛИЕНТ получает уведомление и может оставить ОТЗЫВ
+📊 Статистика разработки
+Метрика	Значение
+Всего коммитов	16
+Период разработки	май 2026
+Основные коммиты	feat: initial commit, docs: final README, style: add version comments
+👨‍💻 Автор
+Студент группы ПИЖ-б-о-24-1
+Направление подготовки: 09.03.04 «Программная инженерия»
+Профиль: «Разработка и сопровождение программного обеспечения»
