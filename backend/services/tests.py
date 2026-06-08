@@ -1,3 +1,5 @@
-from django.test import TestCase
+﻿from django.test import TestCase
 
-# Create your tests here.
+class ServicesSimpleTest(TestCase):
+    def test_services_working(self):
+        self.assertEqual(2 + 2, 4)
