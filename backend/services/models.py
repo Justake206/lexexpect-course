@@ -296,3 +296,29 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Отзыв от {self.client.username} на заявку #{self.case.id}"
+
+
+# ========== НОВАЯ МОДЕЛЬ ИЗБРАННОГО ==========
+class Favorite(models.Model):
+    """Модель избранного (адвокаты в избранном у клиента)"""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='favorites',
+        verbose_name='Пользователь'
+    )
+    lawyer = models.ForeignKey(
+        Lawyer,
+        on_delete=models.CASCADE,
+        related_name='favorited_by',
+        verbose_name='Адвокат'
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+        unique_together = ('user', 'lawyer')  # Один пользователь не может добавить одного адвоката дважды
+
+    def __str__(self):
+        return f"{self.user.username} → {self.lawyer.full_name}"
