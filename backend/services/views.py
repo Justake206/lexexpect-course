@@ -45,7 +45,7 @@ class LawyerViewSet(viewsets.ModelViewSet):
     search_fields = ['specialization', 'user__first_name', 'user__last_name', 'user__username']
     ordering_fields = ['experience', 'rating']
 
-    # ========== НОВЫЕ МЕТОДЫ ДЛЯ ИЗБРАННОГО ==========
+    # ========== МЕТОДЫ ДЛЯ ИЗБРАННОГО ==========
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def add_to_favorites(self, request, pk=None):
@@ -84,7 +84,8 @@ class LawyerViewSet(viewsets.ModelViewSet):
     def my_favorites(self, request):
         """Получить список избранных адвокатов текущего пользователя"""
         favorites = Favorite.objects.filter(user=request.user).select_related('lawyer')
-        serializer = FavoriteSerializer(favorites, many=True)
+        # ВАЖНО: передаём request в контекст для получения полного URL фото
+        serializer = FavoriteSerializer(favorites, many=True, context={'request': request})
         return Response(serializer.data)
 
 

@@ -7,7 +7,7 @@ function Favorites() {
     const [favorites, setFavorites] = useState([]);
     const [loading, setLoading] = useState(true);
     const [removingId, setRemovingId] = useState(null);
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -34,10 +34,8 @@ function Favorites() {
         try {
             await api.delete(`/lawyers/${lawyerId}/remove_from_favorites/`);
             setFavorites(prev => prev.filter(f => f.lawyer !== lawyerId));
-            // Небольшое уведомление
-            alert(`❌ ${lawyerName} удалён из избранного`);
         } catch (error) {
-            console.error('Ошибка при удалении из избранного:', error);
+            console.error('Ошибка:', error);
             alert('Ошибка при удалении из избранного');
         } finally {
             setRemovingId(null);
@@ -66,7 +64,6 @@ function Favorites() {
     return (
         <div className="bg-light" style={{ minHeight: 'calc(100vh - 56px)' }}>
             <div className="container py-5">
-                {/* Шапка */}
                 <div className="text-center mb-5 animate-fadeInUp">
                     <div className="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm mb-3" style={{ width: '70px', height: '70px' }}>
                         <span className="fs-1">❤️</span>
@@ -75,7 +72,6 @@ function Favorites() {
                     <p className="text-muted">Сохранённые адвокаты</p>
                 </div>
 
-                {/* Результаты */}
                 {favorites.length === 0 ? (
                     <div className="text-center py-5">
                         <span className="display-1 opacity-25">❤️</span>
@@ -90,7 +86,6 @@ function Favorites() {
                             <div key={fav.id} className="col-md-6 col-lg-4">
                                 <div className="card border-0 shadow-sm rounded-4 overflow-hidden hover-lift h-100">
                                     <div className="card-body p-4 text-center d-flex flex-column h-100">
-                                        {/* Аватар */}
                                         <div className="mb-3">
                                             {fav.lawyer_photo ? (
                                                 <img
@@ -136,7 +131,7 @@ function Favorites() {
                                             </button>
                                             <button
                                                 className="btn btn-outline-primary rounded-pill px-4 w-100"
-                                                onClick={() => window.location.href = `/cases/create`}
+                                                onClick={() => window.location.href = '/cases/create'}
                                             >
                                                 Записаться на консультацию
                                             </button>

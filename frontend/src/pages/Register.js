@@ -171,7 +171,7 @@ function Register() {
                                         )}
                                     </button>
                                 </div>
-                                <small className="text-muted">Минимум 6 символов</small>
+                                <small className="text-muted">Минимум 8 символов</small>
                             </div>
                             <div className="mb-3">
                                 <label className="form-label fw-semibold">Подтверждение пароля *</label>

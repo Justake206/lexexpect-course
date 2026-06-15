@@ -3,7 +3,7 @@
 """
 
 from rest_framework import serializers
-from .models import Service, Lawyer, Case, Review, Favorite   # ← Импорт Favorite
+from .models import Service, Lawyer, Case, Review, Favorite
 
 
 class ServiceSerializer(serializers.ModelSerializer):
@@ -138,8 +138,19 @@ class FavoriteSerializer(serializers.ModelSerializer):
     """Сериализатор для избранного"""
     lawyer_name = serializers.CharField(source='lawyer.full_name', read_only=True)
     lawyer_specialization = serializers.CharField(source='lawyer.specialization', read_only=True)
+    lawyer_experience = serializers.IntegerField(source='lawyer.experience', read_only=True)
+    lawyer_bio = serializers.CharField(source='lawyer.bio', read_only=True)
+    lawyer_rating = serializers.DecimalField(source='lawyer.rating', read_only=True, max_digits=3, decimal_places=2)
+    lawyer_photo = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Favorite
-        fields = ['id', 'lawyer', 'lawyer_name', 'lawyer_specialization', 'created_at']
+        fields = ['id', 'lawyer', 'lawyer_name', 'lawyer_specialization', 'lawyer_photo',
+                  'lawyer_experience', 'lawyer_bio', 'lawyer_rating', 'created_at']
         read_only_fields = ['id', 'created_at']
+
+    def get_lawyer_photo(self, obj):
+        request = self.context.get('request')
+        if obj.lawyer.photo and request:
+            return request.build_absolute_uri(obj.lawyer.photo.url)
+        return None
