@@ -51,4 +51,9 @@ api.interceptors.response.use(
     }
 );
 
+// Избранное
+export const addToFavorites = (lawyerId) => api.post(`/lawyers/${lawyerId}/add_to_favorites/`);
+export const removeFromFavorites = (lawyerId) => api.delete(`/lawyers/${lawyerId}/remove_from_favorites/`);
+export const getFavorites = () => api.get('/lawyers/my_favorites/');
+
 export default api;

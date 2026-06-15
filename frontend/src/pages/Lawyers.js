@@ -11,7 +11,9 @@ function Lawyers() {
     const [selectedSpecialization, setSelectedSpecialization] = useState('');
     const [selectedLawyer, setSelectedLawyer] = useState(null);
     const [specializations, setSpecializations] = useState([]);
-    const { isAuthenticated } = useAuth();
+    const [favorites, setFavorites] = useState([]);
+    const [favoriteLoading, setFavoriteLoading] = useState({});
+    const { isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -19,8 +21,14 @@ function Lawyers() {
     }, []);
 
     useEffect(() => {
+        if (isAuthenticated) {
+            fetchFavorites();
+        }
+    }, [isAuthenticated]);
+
+    useEffect(() => {
         filterLawyers();
-    }, [searchTerm, selectedSpecialization, lawyers]);
+    }, [searchTerm, selectedSpecialization, lawyers, favorites]);
 
     const fetchLawyers = async () => {
         try {
@@ -33,6 +41,48 @@ function Lawyers() {
             console.error('Ошибка загрузки адвокатов:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchFavorites = async () => {
+        try {
+            const response = await api.get('/lawyers/my_favorites/');
+            setFavorites(response.data);
+        } catch (error) {
+            console.error('Ошибка загрузки избранного:', error);
+        }
+    };
+
+    const isFavorite = (lawyerId) => {
+        return favorites.some(f => f.lawyer === lawyerId);
+    };
+
+    const handleToggleFavorite = async (lawyerId, lawyerName, e) => {
+        e.stopPropagation();
+        if (!isAuthenticated) {
+            if (window.confirm('Для добавления в избранное необходимо войти. Перейти на страницу входа?')) {
+                navigate('/login');
+            }
+            return;
+        }
+
+        setFavoriteLoading(prev => ({ ...prev, [lawyerId]: true }));
+        try {
+            if (isFavorite(lawyerId)) {
+                await api.delete(`/lawyers/${lawyerId}/remove_from_favorites/`);
+                setFavorites(prev => prev.filter(f => f.lawyer !== lawyerId));
+                // Небольшое уведомление (можно заменить на toast)
+                console.log(`❌ ${lawyerName} удалён из избранного`);
+            } else {
+                await api.post(`/lawyers/${lawyerId}/add_to_favorites/`);
+                await fetchFavorites();
+                console.log(`❤️ ${lawyerName} добавлен в избранное`);
+            }
+        } catch (error) {
+            console.error('Ошибка при изменении избранного:', error);
+            alert('Ошибка при изменении избранного');
+        } finally {
+            setFavoriteLoading(prev => ({ ...prev, [lawyerId]: false }));
         }
     };
 
@@ -59,7 +109,6 @@ function Lawyers() {
         document.body.style.overflow = 'auto';
     };
 
-    // Функция для кнопки "Записаться на консультацию"
     const handleConsultation = () => {
         if (!isAuthenticated) {
             if (window.confirm('Для создания заявки необходимо войти в систему. Перейти на страницу входа?')) {
@@ -145,7 +194,7 @@ function Lawyers() {
                             <div key={lawyer.id} className="col-md-6 col-lg-4">
                                 <div
                                     className="card border-0 shadow-sm rounded-4 overflow-hidden hover-lift h-100"
-                                    style={{ cursor: 'pointer', minHeight: '400px' }}
+                                    style={{ cursor: 'pointer', minHeight: '430px' }}
                                     onClick={() => openModal(lawyer)}
                                 >
                                     <div className="card-body p-4 text-center d-flex flex-column h-100">
@@ -176,6 +225,20 @@ function Lawyers() {
                                             </p>
                                         )}
                                         <div className="mt-auto">
+                                            {/* Кнопка "В избранное" */}
+                                            {isAuthenticated && (
+                                                <button
+                                                    className={`btn btn-sm rounded-pill w-100 mb-2 ${isFavorite(lawyer.id) ? 'btn-danger' : 'btn-outline-danger'}`}
+                                                    onClick={(e) => handleToggleFavorite(lawyer.id, lawyer.full_name || lawyer.username, e)}
+                                                    disabled={favoriteLoading[lawyer.id]}
+                                                >
+                                                    {favoriteLoading[lawyer.id] ? (
+                                                        <span className="spinner-border spinner-border-sm me-1"></span>
+                                                    ) : (
+                                                        isFavorite(lawyer.id) ? '❤️ В избранном' : '🤍 В избранное'
+                                                    )}
+                                                </button>
+                                            )}
                                             <button
                                                 className="btn btn-primary rounded-pill px-4 w-100"
                                                 onClick={(e) => {
