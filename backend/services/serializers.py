@@ -3,7 +3,7 @@
 """
 
 from rest_framework import serializers
-from .models import Service, Lawyer, Case, Review
+from .models import Service, Lawyer, Case, Review, Favorite   # ← Импорт Favorite
 
 
 class ServiceSerializer(serializers.ModelSerializer):
@@ -52,7 +52,7 @@ class CaseDetailSerializer(serializers.ModelSerializer):
     client = serializers.SerializerMethodField()
     lawyer = serializers.SerializerMethodField()
     service = serializers.SerializerMethodField()
-    review = serializers.SerializerMethodField()  # ← ДОБАВЛЕНО ДЛЯ ОТОБРАЖЕНИЯ ОТЗЫВА
+    review = serializers.SerializerMethodField()
 
     class Meta:
         model = Case
@@ -105,7 +105,7 @@ class CaseDetailSerializer(serializers.ModelSerializer):
 
 class CaseCreateUpdateSerializer(serializers.ModelSerializer):
     """
-    Сериализатор для создания и обновления заявок!
+    Сериализатор для создания и обновления заявок
     """
 
     class Meta:
@@ -132,3 +132,14 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'rating', 'text', 'created_at']
         read_only_fields = ['id', 'created_at', 'client', 'lawyer', 'case']
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    """Сериализатор для избранного"""
+    lawyer_name = serializers.CharField(source='lawyer.full_name', read_only=True)
+    lawyer_specialization = serializers.CharField(source='lawyer.specialization', read_only=True)
+
+    class Meta:
+        model = Favorite
+        fields = ['id', 'lawyer', 'lawyer_name', 'lawyer_specialization', 'created_at']
+        read_only_fields = ['id', 'created_at']

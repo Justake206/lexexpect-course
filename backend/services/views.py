@@ -9,14 +9,15 @@ from rest_framework import serializers
 from django.db import models
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from .models import Service, Lawyer, Case, Review
+from .models import Service, Lawyer, Case, Review, Favorite
 from .serializers import (
     ServiceSerializer,
     LawyerSerializer,
     CaseListSerializer,
     CaseDetailSerializer,
     CaseCreateUpdateSerializer,
-    ReviewSerializer
+    ReviewSerializer,
+    FavoriteSerializer
 )
 from .permissions import (
     IsAdminOrReadOnly,
@@ -43,6 +44,48 @@ class LawyerViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['specialization', 'user__first_name', 'user__last_name', 'user__username']
     ordering_fields = ['experience', 'rating']
+
+    # ========== НОВЫЕ МЕТОДЫ ДЛЯ ИЗБРАННОГО ==========
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def add_to_favorites(self, request, pk=None):
+        """Добавить адвоката в избранное"""
+        lawyer = self.get_object()
+        favorite, created = Favorite.objects.get_or_create(
+            user=request.user,
+            lawyer=lawyer
+        )
+        if created:
+            return Response({
+                'status': 'added',
+                'message': f'Адвокат {lawyer.full_name} добавлен в избранное'
+            })
+        return Response({
+            'status': 'already_exists',
+            'message': 'Адвокат уже в избранном'
+        })
+
+    @action(detail=True, methods=['delete'], permission_classes=[permissions.IsAuthenticated])
+    def remove_from_favorites(self, request, pk=None):
+        """Удалить адвоката из избранного"""
+        lawyer = self.get_object()
+        deleted, _ = Favorite.objects.filter(user=request.user, lawyer=lawyer).delete()
+        if deleted:
+            return Response({
+                'status': 'removed',
+                'message': f'Адвокат {lawyer.full_name} удалён из избранного'
+            })
+        return Response({
+            'status': 'not_found',
+            'message': 'Адвокат не найден в избранном'
+        })
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def my_favorites(self, request):
+        """Получить список избранных адвокатов текущего пользователя"""
+        favorites = Favorite.objects.filter(user=request.user).select_related('lawyer')
+        serializer = FavoriteSerializer(favorites, many=True)
+        return Response(serializer.data)
 
 
 class CaseViewSet(viewsets.ModelViewSet):
