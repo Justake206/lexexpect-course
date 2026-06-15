@@ -83,6 +83,13 @@ function Navbar() {
                                 <Link className="nav-link" to="/cases">Мои заявки</Link>
                             </li>
                         )}
+                        {isAuthenticated && (
+                            <li className="nav-item">
+                                <Link className="nav-link" to="/favorites">
+                                    ❤️ Избранное
+                                </Link>
+                            </li>
+                        )}
                     </ul>
 
                     <div className="d-flex align-items-center gap-3">

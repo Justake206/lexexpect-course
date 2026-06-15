@@ -17,6 +17,7 @@ import CaseDetail from './pages/CaseDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import Favorites from './pages/Favorites';
 
 // Компонент для защиты маршрутов (только для авторизованных)
 const PrivateRoute = ({ children }) => {
@@ -82,6 +83,11 @@ function AppRoutes() {
                     <Route path="/cases/:id" element={
                         <PrivateRoute>
                             <CaseDetail />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/favorites" element={
+                        <PrivateRoute>
+                            <Favorites />
                         </PrivateRoute>
                     } />
 
