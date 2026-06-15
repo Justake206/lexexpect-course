@@ -76,6 +76,7 @@ backend/
 │ ├── admin.py
 │ ├── apps.py
 │ ├── consumers.py
+│ ├── tests.py 
 │ ├── models.py
 │ ├── permissions.py
 │ ├── serializers.py
@@ -89,6 +90,7 @@ backend/
 │ ├── admin.py
 │ ├── apps.py
 │ ├── models.py
+│ ├── tests.py 
 │ ├── serializers.py
 │ ├── urls.py
 │ └── views.py
