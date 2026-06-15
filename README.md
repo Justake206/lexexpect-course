@@ -56,12 +56,11 @@
 - 📄 **Пагинация** на странице услуг (по 6 услуг)
 - ⭐ **Отзывы** с рейтингом (1–5 звёзд)
 - ✂️ **Обрезка длинного описания** с кнопкой «Показать полностью»
+- ❤️ **Система избранного** — клиенты могут сохранять понравившихся адвокатов
 
 ---
 
 ``` ## 🗂️ Структура проекта
-
-### Backend
 backend/
 ├── config/
 │ ├── init.py
@@ -98,38 +97,35 @@ backend/
 ├── manage.py
 └── requirements.txt
 
-text
-
-### Frontend
 frontend/
 ├── public/
-│ └── index.html
+│   └── index.html
 ├── src/
-│ ├── components/
-│ │ ├── Navbar.js
-│ │ └── Notifications.js
-│ ├── pages/
-│ │ ├── HomePage.js
-│ │ ├── Services.js
-│ │ ├── Lawyers.js
-│ │ ├── Cases.js
-│ │ ├── CaseCreate.js
-│ │ ├── CaseDetail.js
-│ │ ├── Login.js
-│ │ ├── Register.js
-│ │ └── Profile.js
-│ ├── context/
-│ │ └── AuthContext.js
-│ ├── services/
-│ │ ├── api.js
-│ │ └── websocket.js
-│ ├── App.js
-│ ├── index.js
-│ └── index.css
+│   ├── components/
+│   │   ├── Navbar.js
+│   │   └── Notifications.js
+│   ├── pages/
+│   │   ├── HomePage.js
+│   │   ├── Services.js
+│   │   ├── Lawyers.js
+│   │   ├── Cases.js
+│   │   ├── CaseCreate.js
+│   │   ├── CaseDetail.js
+│   │   ├── Favorites.js
+│   │   ├── Login.js
+│   │   ├── Register.js
+│   │   └── Profile.js
+│   ├── context/
+│   │   └── AuthContext.js
+│   ├── services/
+│   │   ├── api.js
+│   │   └── websocket.js
+│   ├── App.js
+│   ├── index.js
+│   └── index.css
 ├── .env
 ├── package.json
 └── README.md
-
 ```
 ## 🛠 Установка и запуск
 
@@ -189,6 +185,32 @@ PATCH	/api/cases/{id}/update_status/	Изменить статус	Назнач�
 POST	/api/reviews/	Оставить отзыв	Клиент
 
 ```
+## 🧪 Тестирование
+
+### Модульное тестирование
+
+В проекте реализованы модульные тесты для проверки ключевых компонентов.
+
+**Результаты модульного тестирования:**
+
+| Компонент | Количество тестов | Успешно | Провалено |
+|-----------|-------------------|---------|-----------|
+| backend.services | 1 | 1 | 0 |
+| backend.users | 1 | 1 | 0 |
+| **ИТОГО** | **2** | **2** | **0** |
+
+### Запуск тестов
+
+```
+bash
+# Запуск всех тестов бэкенда
+python manage.py test
+
+# Запуск тестов конкретного приложения
+python manage.py test backend.services
+python manage.py test backend.users
+
+```
 🔄 Бизнес-логика (полный цикл заявки)
 text
 1. КЛИЕНТ создаёт заявку
@@ -209,7 +231,7 @@ text
 
 📊 Статистика разработки
 
-Всего коммитов	22
+Всего коммитов	32
 
 Период разработки	май 2026
 
