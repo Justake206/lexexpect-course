@@ -76,6 +76,7 @@ backend/
 │ ├── admin.py
 │ ├── apps.py
 │ ├── consumers.py
+│ ├── tests.py 
 │ ├── models.py
 │ ├── permissions.py
 │ ├── serializers.py
@@ -89,6 +90,7 @@ backend/
 │ ├── admin.py
 │ ├── apps.py
 │ ├── models.py
+│ ├── tests.py 
 │ ├── serializers.py
 │ ├── urls.py
 │ └── views.py
@@ -264,11 +266,19 @@ text
 
 📊 Статистика разработки
 
-Всего коммитов	34
+Всего коммитов - 34
 
-Период разработки	май 2026
+Период разработки - май 2026
 
-Основные коммиты	feat: initial commit, docs: final README, style: add version comments
+Основные коммиты - feat: initial commit, docs: final README, style: add version comments
+
+### График активности
+<img width="1225" height="553" alt="Снимок экрана (1437)(1)" src="https://github.com/user-attachments/assets/8b939283-4e2b-4e52-8da1-e1f605e8c47a" />
+
+### Тепловая карта 
+<img width="1120" height="331" alt="Снимок экрана (1438)(1)" src="https://github.com/user-attachments/assets/1adf756d-ba29-4dab-9124-d270919afeb7" />
+
+
 
 Автор
 
