@@ -30,22 +30,23 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 # Список установленных приложений (модулей проекта)
 INSTALLED_APPS = [
     # Стандартные приложения Django
-    'django.contrib.admin',  # Админ-панель
-    'django.contrib.auth',  # Аутентификация
-    'django.contrib.contenttypes',  # Работа с типами контента
-    'django.contrib.sessions',  # Управление сессиями
-    'django.contrib.messages',  # Система сообщений
-    'django.contrib.staticfiles',  # Статические файлы (CSS, JS)
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
 
     # Сторонние приложения (установлены через pip)
-    'rest_framework',  # Django REST Framework
-    'rest_framework_simplejwt',  # JWT аутентификация
-    'corsheaders',  # CORS заголовки для API
-    'channels',  # Django Channels для WebSocket
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
+    'channels',
+    'drf_yasg',  # Swagger для документации API
 
     # Локальные приложения (наши)
-    'backend.services',  # Основное приложение (услуги, заявки)
-    'backend.users',  # Приложение для пользователей
+    'backend.services',
+    'backend.users',
 ]
 
 # Middleware - компоненты, обрабатывающие запросы на пути от браузера к серверу
@@ -196,3 +197,25 @@ CHANNEL_LAYERS = {
         # },
     },
 }
+# ================== SWAGGER НАСТРОЙКИ ==================
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,  # Отключаем авторизацию через сессии для Swagger
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    },
+}
+
+# Убираем базовую авторизацию для Swagger (чтобы не было редиректа на /accounts/login/)
+# Это нужно, чтобы Swagger работал без авторизации
+import inspect
+from django.urls import reverse
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
+
+# Эта настройка отключает стандартную сессионную аутентификацию для Swagger
+# Мы её уже сделали через SWAGGER_SETTINGS выше
